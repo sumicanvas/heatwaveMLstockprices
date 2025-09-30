@@ -189,3 +189,29 @@ CALL sys.ML_SCORE('stockdb.stock_test_data', 'next_day_close',@stock_model, 'neg
 
     * recall: 재현율
 
+### 8. 예측값이 JSON 포멧이라 숫자포멧으로 바꿔줘서 view 작성 : OAC 시각화를 위한 작업
+ ```
+CREATE VIEW V_STOCK_ANALYSIS2 AS
+SELECT
+     p.Date,
+    p.Ticker,
+    p.next_day_close AS Actual_Close,
+    CAST(
+        JSON_EXTRACT(t.ml_results, '$.predictions.next_day_close')
+        AS DECIMAL(10, 2)
+    ) AS Predicted_Close
+FROM
+    stock_test_data p
+JOIN
+    test_predictions t ON p.Date = t.Date AND p.Ticker = t.Ticker;
+```
+
+
+ ### 8.	MySQL heatwave 모델 UNLOAD
+
+ 
+```
+ CALL sys.ML_MODEL_UNLOAD(@stock_model);
+```
+ 
+
