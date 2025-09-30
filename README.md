@@ -207,11 +207,14 @@ JOIN
 ```
 
 
- ### 8.	MySQL heatwave 모델 UNLOAD
+ ### 9.	MySQL heatwave 모델 UNLOAD
 
  
 ```
  CALL sys.ML_MODEL_UNLOAD(@stock_model);
 ```
- 
+
+ ### 10.	Oracle Analytics Cloud 연동 시각화 
+
+<img width="2842" height="1494" alt="image" src="https://github.com/user-attachments/assets/11442d22-c889-4afe-86ab-cd42f81508e2" />
 
