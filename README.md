@@ -34,17 +34,21 @@ try:
 
 ### 2.	MySQL heatwave에 접속해서 테이블과 데이터 확인
 -  테이블 및 컬럼 확인 <br>
-<img width="1168" height="524" alt="image" src="https://github.com/user-attachments/assets/ab79946e-46de-4baf-97dd-f3157db01099" />
+<img width="700" height="500" alt="image" src="https://github.com/user-attachments/assets/ab79946e-46de-4baf-97dd-f3157db01099" />
 <br>
-<img width="1468" height="726" alt="image" src="https://github.com/user-attachments/assets/39f0a8d4-57cf-48f6-ad2b-0126f63e37eb" />
+<img width="700" height="500" alt="image" src="https://github.com/user-attachments/assets/39f0a8d4-57cf-48f6-ad2b-0126f63e37eb" />
+<br>
 <br>
 
 - next_day_close 컬럼 추가 (실제 다음날값으로 설정하고 예측값과 이후 비교용)
+
 ```
 ALTER TABLE stock_prices ADD COLUMN next_day_close DECIMAL(10, 2);
-```
+``` 
 <br>
-- next_day_close 값 만들어서 추가해줘야 함
+
+
+- next_day_close 값을 넣어줘야 함
 
 ```
 -- CTE(Common Table Expression)를 사용하여 먼저 다음 날 종가를 계산합니다.
@@ -65,3 +69,26 @@ JOIN next_day_data n ON s.Ticker = n.Ticker AND s.Date = n.Date
 SET s.next_day_close = n.next_close;
 
 ```
+<br>
+- 마지막날 next_day_close 값 만들어서 추가해줘야 하는데 간단하게 당일 종가와 동일한 값을 입력하기로 이테스트에서는 정함.
+
+```
+-- NULL 인 값을 찾음(최종날짜)
+SELECT COUNT(*) FROM stock_prices WHERE next_day_close IS NULL;
+
+-- 최종일 종가와 동일한 값을 입력
+UPDATE stock_prices s1
+SET s1.next_day_close = s1.Close
+WHERE s1.Date = (
+    -- s1과 동일한 티커를 가진 데이터 중에서 가장 마지막 날짜를 찾음
+    SELECT MAX(s2.Date)
+    FROM (SELECT * FROM stock_prices) s2
+    WHERE s2.Ticker = s1.Ticker
+);
+```
+<br>
+
+### 3.	MySQL heatwave 노드에 LOAD
+
+```
+CALL sys.heatwave_load(JSON_ARRAY("stockdb"),NULL);
